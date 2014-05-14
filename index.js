@@ -37,7 +37,7 @@ var counter = 0;
 
 **/
 exports.supported = function(platform) {
-  return ['ie', 'safari', 'chrome'].indexOf(platform.browser.toLowerCase()) >= 0;
+  return ['ie', 'safari'].indexOf(platform.browser.toLowerCase()) >= 0;
 };
 
 /**
