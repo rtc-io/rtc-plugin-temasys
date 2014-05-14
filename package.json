@@ -25,5 +25,8 @@
   "homepage": "https://github.com/rtc-io/rtc-plugin-temasys",
   "dependencies": {
     "crel": "^1.1.2"
+  },
+  "devDependencies": {
+    "cog": "^0.5.3"
   }
 }

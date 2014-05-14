@@ -25,7 +25,11 @@ var crel = require('crel');
 **/
 
 var PLUGIN_MIMETYPE = 'application/x-temwebrtcplugin';
-var counter = 0;
+var pageId = genId();
+
+function genId() {
+  return Math.random().toString(36).slice(2);
+}
 
 /**
   ### supported(platform) => Boolean
@@ -50,20 +54,32 @@ exports.supported = function(platform) {
 var init = exports.init = function(callback) {
   // find the temasys plugin
   var plugin = document.querySelector('object[type="' + PLUGIN_MIMETYPE + '"]');
-  var pluginId = '__temasys_plugin' + (counter++);
+  var pluginId = '__temasys_plugin_' + genId();
   var params = [
     { name: 'onload', value: '__load' + pluginId },
     { name: 'pluginId', value: pluginId }
   ];
 
+  function getUserMedia() {
+    plugin.getUserMedia.apply(plugin, arguments);
+  }
+
   // patch in the onload handler into the window object
   window['__load' + pluginId] = function() {
     // deference the window handler
     window['__load' + pluginId] = undefined;
+    console.log('plugin loaded');
+
+    // set the plugin page id
+    plugin.setPluginId(pageId, pluginId);
+    plugin.setLogFunction(console);
+
+    // patch navigator getUserMedia function to the plugin
+    navigator.getUserMedia = getUserMedia;
 
     // trigger the callback
     if (typeof callback == 'function') {
-      callback();
+      callback(null, plugin);
     }
   };
 
@@ -84,6 +100,8 @@ var init = exports.init = function(callback) {
     // add the plugin to the document body
     document.body.appendChild(plugin);
   }
+
+  return plugin;
 };
 
 /**
@@ -111,4 +129,76 @@ exports.initMedia = function(media, callback) {
 
     callback();
   })
+};
+
+/**
+  ### attachStream(stream, bindings)
+
+**/
+exports.attachStream = function(stream, bindings) {
+  // get the elements
+  var elements = bindings.map(function(binding) {
+    // only return the element if it is an object element
+    if (binding.el instanceof HTMLObjectElement) {
+      return binding.el;
+    }
+  }).filter(Boolean);
+
+  stream.enableSoundTracks(true);
+
+  // set the stream id for each of the matching elements
+  console.log('attaching stream to bindings: ', stream);
+  elements.forEach(function(el) {
+    el.appendChild(crel('param', {
+      name: 'streamId',
+      value: stream.id
+    }));
+
+    el.attach();
+    el.width = '518px';
+    el.height = '259px';
+  });
+};
+
+/**
+  ### prepareElement(opts, element) => HTMLElement
+
+  The `prepareElement` function is used to prepare the video container
+  for receiving a video stream.  If the plugin is able to work with
+  standard `<video>` and `<audio>` elements then a plugin should simply
+  not implement this function.
+
+**/
+exports.prepareElement = function(opts, element) {
+  // determine whether we are dealing with a target we need to replace
+  // or a container
+  var shouldReplace = (element instanceof HTMLVideoElement) ||
+      (element instanceof HTMLAudioElement);
+
+  // if we should replace the element, then find the parent
+  var container = shouldReplace ? element.parentNode : element;
+
+  // create our plugin render object
+  var renderer = crel('object', {
+    id: genId(),
+    type: PLUGIN_MIMETYPE
+  });
+
+  // initialise the params we will inject into the renderer
+  var params = [
+    { name: 'pluginId', value: renderer.id },
+    { name: 'pageId', value: pageId }
+  ];
+
+  params.forEach(function(data) {
+    renderer.appendChild(crel('param', data));
+  });
+
+  // add an attach method for the renderer
+  renderer.attach = function() {
+    // inject the renderer into the dom
+    container.appendChild(renderer);
+  };
+
+  return renderer;
 };
