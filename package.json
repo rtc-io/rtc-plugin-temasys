@@ -1,0 +1,25 @@
+{
+  "name": "rtc-plugin-temasys",
+  "version": "0.0.0",
+  "description": "An rtc.io module for interacting with the Temasys IE/Safari WebRTC plugin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rtc-io/rtc-plugin-temasys.git"
+  },
+  "keywords": [
+    "rtc.io",
+    "webrtc",
+    "plugin",
+    "temasys"
+  ],
+  "author": "Damon Oehlman <damon.oehlman@nicta.com.au>",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/rtc-io/rtc-plugin-temasys/issues"
+  },
+  "homepage": "https://github.com/rtc-io/rtc-plugin-temasys"
+}
