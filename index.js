@@ -58,10 +58,14 @@ var init = exports.init = function(callback) {
 
   // patch in the onload handler into the window object
   window['__load' + pluginId] = function() {
-    console.log('plugin loaded');
-  };
+    // deference the window handler
+    window['__load' + pluginId] = undefined;
 
-  console.log('initializing plugin: ' + pluginId);
+    // trigger the callback
+    if (typeof callback == 'function') {
+      callback();
+    }
+  };
 
   // if the plugin is not found, then add it to the document
   if (! plugin) {
@@ -95,9 +99,16 @@ var init = exports.init = function(callback) {
 
 **/
 exports.initMedia = function(media, callback) {
+  // ensure we have a callback function
+  callback = callback || function() {};
+
   init(function(err) {
     if (err) {
       return callback(err);
     }
+
+    // TODO: patch the media object
+
+    callback();
   })
 };
