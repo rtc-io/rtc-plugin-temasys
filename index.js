@@ -51,7 +51,7 @@ exports.supported = function(platform) {
   document is prepared correctly.
 
 **/
-var init = exports.init = function(callback) {
+var init = exports.init = function(opts, callback) {
   // find the temasys plugin
   var plugin = document.querySelector('object[type="' + PLUGIN_MIMETYPE + '"]');
   var pluginId = '__temasys_plugin_' + genId();
@@ -60,8 +60,23 @@ var init = exports.init = function(callback) {
     { name: 'pluginId', value: pluginId }
   ];
 
-  function getUserMedia() {
-    plugin.getUserMedia.apply(plugin, arguments);
+  function getUserMedia(constraints, successCb, failureCb) {
+    plugin.getUserMedia.call(
+      plugin,
+      constraints,
+      function(stream) {
+        console.log('captured stream: ', stream);
+        if (typeof successCb == 'function') {
+          successCb(stream);
+        }
+      },
+      function(err) {
+        console.log('failed capturing stream: ', err);
+        if (typeof failureCb == 'function') {
+          failureCb(err);
+        }
+      }
+    );
   }
 
   // patch in the onload handler into the window object
