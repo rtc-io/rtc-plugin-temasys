@@ -24,9 +24,10 @@
   },
   "homepage": "https://github.com/rtc-io/rtc-plugin-temasys",
   "dependencies": {
-    "crel": "^1.1.2"
+    "crel": "^1"
   },
   "devDependencies": {
-    "cog": "^0.5.3"
+    "cog": "~0.5",
+    "rtc-media": "^1"
   }
 }
