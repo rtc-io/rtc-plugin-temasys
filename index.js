@@ -45,7 +45,7 @@ exports.supported = function(platform) {
 };
 
 /**
-  ### init(callback)
+  ### init(opts, callback)
 
   The `init` function is reponsible for ensuring that the current HTML
   document is prepared correctly.
@@ -152,26 +152,15 @@ exports.initMedia = function(media, callback) {
 **/
 exports.attachStream = function(stream, bindings) {
   // get the elements
-  var elements = bindings.map(function(binding) {
-    // only return the element if it is an object element
-    if (binding.el instanceof HTMLObjectElement) {
-      return binding.el;
-    }
+  var createRenderSurfaces = bindings.map(function(binding) {
+    return typeof binding.el == 'function' && binding.el;
   }).filter(Boolean);
 
   stream.enableSoundTracks(true);
 
   // set the stream id for each of the matching elements
-  console.log('attaching stream to bindings: ', stream);
-  elements.forEach(function(el) {
-    el.appendChild(crel('param', {
-      name: 'streamId',
-      value: stream.id
-    }));
-
-    el.attach();
-    el.width = '518px';
-    el.height = '259px';
+  createRenderSurfaces.forEach(function(fn) {
+    fn(stream);
   });
 };
 
@@ -192,28 +181,37 @@ exports.prepareElement = function(opts, element) {
 
   // if we should replace the element, then find the parent
   var container = shouldReplace ? element.parentNode : element;
-
-  // create our plugin render object
-  var renderer = crel('object', {
-    id: genId(),
-    type: PLUGIN_MIMETYPE
-  });
-
-  // initialise the params we will inject into the renderer
+  var rendererId = genId();
   var params = [
-    { name: 'pluginId', value: renderer.id },
+    { name: 'pluginId', value: rendererId },
     { name: 'pageId', value: pageId }
   ];
 
-  params.forEach(function(data) {
-    renderer.appendChild(crel('param', data));
-  });
+  function createRenderSurface(stream) {
+    var renderParams = params.concat([{ name: 'streamId', value: stream.id }]);
+    var renderer = crel('object', {
+      id: rendererId,
+      type: PLUGIN_MIMETYPE
+    });
 
-  // add an attach method for the renderer
-  renderer.attach = function() {
+    // initialise the params we will inject into the renderer
+    renderParams.forEach(function(data) {
+      renderer.appendChild(crel('param', data));
+    });
+
+    // TODO: make these sensible
+    renderer.width = 640;
+    renderer.height = 320;
+
     // inject the renderer into the dom
-    container.appendChild(renderer);
-  };
+    if (shouldReplace) {
+      container.insertBefore(renderer);
+      container.removeChild(element);
+    }
+    else {
+      container.appendChild(renderer);
+    }
+  }
 
-  return renderer;
+  return createRenderSurface;
 };
