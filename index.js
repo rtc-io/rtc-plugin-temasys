@@ -12,11 +12,18 @@ var loader = require('./loader');
   the [Temasys IE plugin](http://bit.ly/1lnlEIK) into the rtc.io module
   suite.
 
-  ## Example Usage
+  ## Example Usage (Capture)
 
   A simple capture example is shown below:
 
   <<< examples/capture.js
+
+  ## Example Usage (Conferencing)
+
+  A slightly more complicated example demonstrating conferencing between
+  machines is displayed below.
+
+  <<< examples/conference.js
 
   ## Reference
 
