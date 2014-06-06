@@ -129,16 +129,22 @@ exports.prepareElement = function(opts, element) {
 /* peer connection plugin interfaces */
 
 exports.createIceCandidate = function(opts) {
-  return getRTCIceCandidate(opts);
+  return loader.plugin && loader.plugin.ConstructIceCandidate(
+    (opts || {}).sdpMid || '',
+    (opts || {}).sdpMLineIndex,
+    (opts || {}).candidate
+  );
 };
 
 exports.createConnection = function(config, constraints) {
-  return getPeerConnection(config, constraints);
+  return loader.plugin && loader.plugin.PeerConnection(
+    loader.pageId,
+    (config || {}).iceServers || [],
+    (constraints || {}).mandatory || null,
+    (constraints || {}).optional || null
+  );
 };
 
 exports.createSessionDescription = function(opts) {
-  return getRTCSessionDescription(opts);
+  return loader.plugin && loader.plugin.ConstructSessionDescription(opts.type, opts.sdp);
 };
-
-window.addEventListener('load', function() {
-});
