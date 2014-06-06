@@ -41,11 +41,14 @@ machines is displayed below.
 var quickconnect = require('rtc-quickconnect');
 var media = require('rtc-media');
 var qsa = require('fdom/qsa');
+
+var plugins = [
+  require('rtc-plugin-temasys')
+];
+
 var opts = {
   room: 'temasys-conftest',
-  plugins: [
-    require('rtc-plugin-temasys')
-  ]
+  plugins: plugins
 };
 
 function handleStreamCap(stream) {
@@ -54,9 +57,11 @@ function handleStreamCap(stream) {
     .addStream(stream)
     // when a peer is connected (and active) pass it to us for use
     .on('call:started', function(id, pc, data) {
+      console.log('call started: ', pc);
+
       // render the remote streams
       pc.getRemoteStreams().forEach(function(stream) {
-        var el = media(stream).render(document.body);
+        var el = media({ stream: stream, plugins: plugins }).render(document.body);
 
         // set the data-peer attribute of the element
         el.dataset.peer = id;
@@ -71,7 +76,9 @@ function handleStreamCap(stream) {
     });
 }
 
-media({ plugins: [ require('rtc-plugin-temasys') ]})
+require('cog/logger').enable('*');
+
+media({ plugins: plugins })
   .once('capture', handleStreamCap)
   .render(document.body);
 
