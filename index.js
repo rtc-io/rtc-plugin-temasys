@@ -2,6 +2,8 @@
 'use strict';
 
 var crel = require('crel');
+var config = require('./config');
+var loader = require('./loader');
 
 /**
   # rtc-plugin-temasys
@@ -24,13 +26,6 @@ var crel = require('crel');
 
 **/
 
-var PLUGIN_MIMETYPE = 'application/x-temwebrtcplugin';
-var pageId = genId();
-
-function genId() {
-  return Math.random().toString(36).slice(2);
-}
-
 /**
   ### supported(platform) => Boolean
 
@@ -52,98 +47,13 @@ exports.supported = function(platform) {
 
 **/
 var init = exports.init = function(opts, callback) {
-  // find the temasys plugin
-  var plugin = document.querySelector('object[type="' + PLUGIN_MIMETYPE + '"]');
-  var pluginId = '__temasys_plugin_' + genId();
-  var params = [
-    { name: 'onload', value: '__load' + pluginId },
-    { name: 'pluginId', value: pluginId }
-  ];
-
-  function getUserMedia(constraints, successCb, failureCb) {
-    plugin.getUserMedia.call(
-      plugin,
-      constraints,
-      function(stream) {
-        console.log('captured stream: ', stream);
-        if (typeof successCb == 'function') {
-          successCb(stream);
-        }
-      },
-      function(err) {
-        console.log('failed capturing stream: ', err);
-        if (typeof failureCb == 'function') {
-          failureCb(err);
-        }
-      }
-    );
+  if (loader.plugin) {
+    return callback(null, loader.plugin);
   }
 
-  // patch in the onload handler into the window object
-  window['__load' + pluginId] = function() {
-    // deference the window handler
-    window['__load' + pluginId] = undefined;
-    console.log('plugin loaded');
-
-    // set the plugin page id
-    plugin.setPluginId(pageId, pluginId);
-    plugin.setLogFunction(console);
-
-    // patch navigator getUserMedia function to the plugin
-    navigator.getUserMedia = getUserMedia;
-
-    // trigger the callback
-    if (typeof callback == 'function') {
-      callback(null, plugin);
-    }
-  };
-
-  // if the plugin is not found, then add it to the document
-  if (! plugin) {
-    plugin = crel('object', {
-      width: 0,
-      height: 0,
-      type: PLUGIN_MIMETYPE,
-      id: pluginId
-    });
-
-    // create the plugin parameters
-    params.forEach(function(data) {
-      plugin.appendChild(crel('param', data));
-    });
-
-    // add the plugin to the document body
-    document.body.appendChild(plugin);
-  }
-
-  return plugin;
-};
-
-/**
-  ### initMedia(media, callback)
-
-  The `initMedia` function is to perform two functions:
-
-  1. To ensure that the HTML document has been prepared correctly for
-     the plugin.  If not, the `init` function will be called.
-
-  2. To apply any plugin specific logic into the rtc.io media capture
-     interface.
-
-**/
-exports.initMedia = function(media, callback) {
-  // ensure we have a callback function
-  callback = callback || function() {};
-
-  init(function(err) {
-    if (err) {
-      return callback(err);
-    }
-
-    // TODO: patch the media object
-
-    callback();
-  })
+  loader.once('init', function() {
+    callback(null, loader.plugin);
+  });
 };
 
 /**
@@ -181,17 +91,17 @@ exports.prepareElement = function(opts, element) {
 
   // if we should replace the element, then find the parent
   var container = shouldReplace ? element.parentNode : element;
-  var rendererId = genId();
+  var rendererId = config.genId();
   var params = [
     { name: 'pluginId', value: rendererId },
-    { name: 'pageId', value: pageId }
+    { name: 'pageId', value: loader.pageId }
   ];
 
   function createRenderSurface(stream) {
     var renderParams = params.concat([{ name: 'streamId', value: stream.id }]);
     var renderer = crel('object', {
       id: rendererId,
-      type: PLUGIN_MIMETYPE
+      type: config.mimetype
     });
 
     // initialise the params we will inject into the renderer
@@ -215,3 +125,20 @@ exports.prepareElement = function(opts, element) {
 
   return createRenderSurface;
 };
+
+/* peer connection plugin interfaces */
+
+exports.createIceCandidate = function(opts) {
+  return getRTCIceCandidate(opts);
+};
+
+exports.createConnection = function(config, constraints) {
+  return getPeerConnection(config, constraints);
+};
+
+exports.createSessionDescription = function(opts) {
+  return getRTCSessionDescription(opts);
+};
+
+window.addEventListener('load', function() {
+});
