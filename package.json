@@ -28,6 +28,8 @@
   },
   "devDependencies": {
     "cog": "~0.5",
-    "rtc-media": "^1"
+    "fdom": "~0.8",
+    "rtc-media": "^1",
+    "rtc-quickconnect": "^1"
   }
 }
