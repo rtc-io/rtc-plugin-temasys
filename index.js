@@ -63,6 +63,55 @@ var init = exports.init = function(opts, callback) {
   });
 };
 
+exports.attach = function(stream, opts) {
+  var element = (opts || {}).el;
+
+  // determine whether we are dealing with a target we need to replace
+  // or a container
+  var shouldReplace = (element instanceof HTMLVideoElement) ||
+      (element instanceof HTMLAudioElement);
+
+  // if we should replace the element, then find the parent
+  var container = shouldReplace ? element.parentNode : element;
+  var rendererId = config.genId();
+  var params = [
+    { name: 'pluginId', value: rendererId },
+    { name: 'pageId', value: loader.pageId },
+    { name: 'windowless', value: true }
+  ];
+
+  function createRenderSurface(stream) {
+    var renderParams = params.concat([{ name: 'streamId', value: stream.id }]);
+    var renderer = crel('object', {
+      id: rendererId,
+      type: config.mimetype
+    });
+
+    var el = crel('div', renderer);
+
+    stream.enableSoundTracks(true);
+
+    // initialise the params we will inject into the renderer
+    renderParams.forEach(function(data) {
+      renderer.appendChild(crel('param', data));
+    });
+
+    // TODO: make these sensible
+    renderer.width = 640;
+    renderer.height = 320;
+
+    // inject the renderer into the dom
+    if (shouldReplace) {
+      container.insertBefore(el);
+      container.removeChild(element);
+    }
+
+    return el;
+  }
+
+  return createRenderSurface(stream);
+};
+
 /**
   ### attachStream(stream, bindings)
 
@@ -91,46 +140,7 @@ exports.attachStream = function(stream, bindings) {
 
 **/
 exports.prepareElement = function(opts, element) {
-  // determine whether we are dealing with a target we need to replace
-  // or a container
-  var shouldReplace = (element instanceof HTMLVideoElement) ||
-      (element instanceof HTMLAudioElement);
 
-  // if we should replace the element, then find the parent
-  var container = shouldReplace ? element.parentNode : element;
-  var rendererId = config.genId();
-  var params = [
-    { name: 'pluginId', value: rendererId },
-    { name: 'pageId', value: loader.pageId }
-  ];
-
-  function createRenderSurface(stream) {
-    var renderParams = params.concat([{ name: 'streamId', value: stream.id }]);
-    var renderer = crel('object', {
-      id: rendererId,
-      type: config.mimetype
-    });
-
-    // initialise the params we will inject into the renderer
-    renderParams.forEach(function(data) {
-      renderer.appendChild(crel('param', data));
-    });
-
-    // TODO: make these sensible
-    renderer.width = 640;
-    renderer.height = 320;
-
-    // inject the renderer into the dom
-    if (shouldReplace) {
-      container.insertBefore(renderer);
-      container.removeChild(element);
-    }
-    else {
-      container.appendChild(renderer);
-    }
-  }
-
-  return createRenderSurface;
 };
 
 /* peer connection plugin interfaces */

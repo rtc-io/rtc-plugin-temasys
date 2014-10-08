@@ -38,7 +38,9 @@ function createPlugin() {
 
   var params = [
     { name: 'onload', value: '__load' + pluginId },
-    { name: 'pluginId', value: pluginId }
+    { name: 'pluginId', value: pluginId },
+    { name: 'windowless', value: false },
+    { name: 'pageId', value: pageId }
   ];
 
   // create the plugin parameters
