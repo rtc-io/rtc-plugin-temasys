@@ -7,28 +7,27 @@ suite.
 
 [![NPM](https://nodei.co/npm/rtc-plugin-temasys.png)](https://nodei.co/npm/rtc-plugin-temasys/)
 
-[![experimental](https://img.shields.io/badge/stability-experimental-red.svg)](https://github.com/badges/stability-badges) [![Dependency Status](https://david-dm.org/rtc-io/rtc-plugin-temasys.svg)](https://david-dm.org/rtc-io/rtc-plugin-temasys) 
+[![experimental](https://img.shields.io/badge/stability-experimental-red.svg)](https://github.com/dominictarr/stability#experimental) [![Dependency Status](https://david-dm.org/rtc-io/rtc-plugin-temasys.svg)](https://david-dm.org/rtc-io/rtc-plugin-temasys) 
 
 ## Example Usage (Capture)
 
 A simple capture example is shown below:
 
 ```js
-// require the media capture helper from rtc.io
-var media = require('rtc-media');
+var capture = require('rtc-capture');
+var opts = {
+  plugins: [ require('rtc-plugin-temasys') ]
+};
 
-require('cog/logger').enable('*');
+capture({ video: true, audio: true }, opts, function(err, stream) {
+  if (err) {
+    return console.error('could not capture stream: ', err);
+  }
 
-// capture the local media, letting rtc-media know it can use
-// the temasys plugin
-var localMedia = media({
-  plugins: [
-    require('rtc-plugin-temasys')
-  ]
+  console.log('captured stream: ', stream);
+  console.log('video tracks: ' + stream.getVideoTracks().length);
+  console.log('audio tracks: ' + stream.getAudioTracks().length);
 });
-
-// render the media to the document body
-localMedia.render(document.body);
 
 ```
 
