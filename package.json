@@ -27,10 +27,10 @@
     "crel": "^2.1.5"
   },
   "devDependencies": {
-    "cog": "~0.5",
+    "cog": "^1.0.0",
     "fdom": "~0.8",
     "rtc-capture": "^1.0.0",
     "rtc-media": "^1",
-    "rtc-quickconnect": "^1"
+    "rtc-quickconnect": "^3.0.0"
   }
 }
