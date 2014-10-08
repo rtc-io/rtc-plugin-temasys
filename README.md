@@ -15,6 +15,7 @@ A simple capture example is shown below:
 
 ```js
 var capture = require('rtc-capture');
+var attach = require('rtc-attach');
 var opts = {
   plugins: [ require('rtc-plugin-temasys') ]
 };
@@ -24,9 +25,13 @@ capture({ video: true, audio: true }, opts, function(err, stream) {
     return console.error('could not capture stream: ', err);
   }
 
-  console.log('captured stream: ', stream);
-  console.log('video tracks: ' + stream.getVideoTracks().length);
-  console.log('audio tracks: ' + stream.getAudioTracks().length);
+  attach(stream, opts, function(err, el) {
+    if (err) {
+      return console.error('could not attach stream: ', err);
+    }
+
+    document.body.appendChild(el);
+  });
 });
 
 ```
