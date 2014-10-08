@@ -1,15 +1,14 @@
-// require the media capture helper from rtc.io
-var media = require('rtc-media');
+var capture = require('rtc-capture');
+var opts = {
+  plugins: [ require('../') ]
+};
 
-require('cog/logger').enable('*');
+capture({ video: true, audio: true }, opts, function(err, stream) {
+  if (err) {
+    return console.error('could not capture stream: ', err);
+  }
 
-// capture the local media, letting rtc-media know it can use
-// the temasys plugin
-var localMedia = media({
-  plugins: [
-    require('../')
-  ]
+  console.log('captured stream: ', stream);
+  console.log('video tracks: ' + stream.getVideoTracks().length);
+  console.log('audio tracks: ' + stream.getAudioTracks().length);
 });
-
-// render the media to the document body
-localMedia.render(document.body);
