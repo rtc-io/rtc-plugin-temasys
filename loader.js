@@ -60,13 +60,11 @@ function getUserMedia(constraints, successCb, failureCb) {
     loader.plugin,
     constraints,
     function(stream) {
-      console.log('captured stream: ', stream);
       if (typeof successCb == 'function') {
         successCb(stream);
       }
     },
     function(err) {
-      console.log('failed capturing stream: ', err);
       if (typeof failureCb == 'function') {
         failureCb(err);
       }
