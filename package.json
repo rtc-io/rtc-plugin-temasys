@@ -29,6 +29,7 @@
   "devDependencies": {
     "cog": "~0.5",
     "fdom": "~0.8",
+    "rtc-capture": "^1.0.0",
     "rtc-media": "^1",
     "rtc-quickconnect": "^1"
   }
