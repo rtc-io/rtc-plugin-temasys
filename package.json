@@ -4,6 +4,9 @@
   "description": "An rtc.io module for interacting with the Temasys IE/Safari WebRTC plugin",
   "main": "index.js",
   "scripts": {
+    "browserify": "mkdir -p dist && browserify index.js -s RTC.Temasys --debug | exorcist dist/rtc-temasys.js.map > dist/rtc-temasys.js",
+    "uglify": "uglifyjs --mangle --compress --in-source-map dist/rtc-temasys.js.map --source-map-include-sources --source-map dist/rtc-temasys.min.js.map --source-map-url rtc-temasys.min.js.map --output dist/rtc-temasys.min.js dist/rtc-temasys.js",
+    "build": "npm run browserify && npm run uglify",
     "test": "echo \"Error: no test specified\" && exit 1",
     "gendocs": "gendocs > README.md"
   },
