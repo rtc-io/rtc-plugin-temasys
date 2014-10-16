@@ -1,5 +1,6 @@
 var quickconnect = require('rtc-quickconnect');
-var media = require('rtc-media');
+var capture = require('rtc-capture');
+var attach = require('rtc-attach');
 var qsa = require('fdom/qsa');
 
 var plugins = [
@@ -12,7 +13,7 @@ var opts = {
 };
 
 function handleStreamCap(stream) {
-  quickconnect('http://rtc.io/switchboard/', opts)
+  quickconnect('https://switchboard.rtc.io/', opts)
     // broadcast our captured media to other participants in the room
     .addStream(stream)
     // when a peer is connected (and active) pass it to us for use
@@ -21,10 +22,14 @@ function handleStreamCap(stream) {
 
       // render the remote streams
       pc.getRemoteStreams().forEach(function(stream) {
-        var el = media({ stream: stream, plugins: plugins }).render(document.body);
+        attach(stream, opts, function(err, el) {
+          if (err) {
+            return console.error('could not attach stream: ', err);
+          }
 
-        // set the data-peer attribute of the element
-        el.dataset.peer = id;
+          el.dataset.peer = id;
+          document.body.appendChild(el);
+        });
       });
     })
     // when a peer leaves, remove the media
@@ -38,6 +43,10 @@ function handleStreamCap(stream) {
 
 require('cog/logger').enable('*');
 
-media({ plugins: plugins })
-  .once('capture', handleStreamCap)
-  .render(document.body);
+capture({ video: true, audio: true }, opts, function(err, stream) {
+  if (err) {
+    return console.error('Could not capture stream: ', err);
+  }
+
+  handleStreamCap(stream);
+});
