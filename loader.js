@@ -2,12 +2,31 @@ var crel = require('crel');
 var config = require('./config');
 var EventEmitter = require('events').EventEmitter;
 var loader = module.exports = new EventEmitter();
+var windowReady = false;
+var initialized = false;
 
 // initialise the loader plugin id
 var pluginId = loader.pluginId = '__temasys_plugin_' + config.genId();
 
 // initialise the loader pageid
 var pageId = loader.pageId = config.genId();
+
+loader.init = function(callback) {
+  if (initialized) {
+    return setTimeout(callback, 0);
+  }
+
+  if (! windowReady) {
+    window.addEventListener('load', function() {
+      loader.init(callback);
+    });
+
+    return;
+  }
+
+  loader.plugin = createPlugin();
+  loader.once('init', callback);
+};
 
 // patch in the onload handler into the window object
 window['__load' + pluginId] = function() {
@@ -24,7 +43,10 @@ window['__load' + pluginId] = function() {
   loader.plugin.setLogFunction(console);
 
   // patch navigator getUserMedia function to the plugin
-  navigator.getUserMedia = getUserMedia;
+  navigator.getUserMedia = __getUserMedia;
+
+  // flag initialized
+  initialized = true;
   loader.emit('init');
 };
 
@@ -53,7 +75,7 @@ function createPlugin() {
   return plugin;
 }
 
-function getUserMedia(constraints, successCb, failureCb) {
+function __getUserMedia(constraints, successCb, failureCb) {
   if (! loader.plugin) {
     return failureCb && failureCb(new Error('plugin not loaded'));
   }
@@ -75,5 +97,5 @@ function getUserMedia(constraints, successCb, failureCb) {
 }
 
 window.addEventListener('load', function() {
-  loader.plugin = createPlugin(); // document.querySelector('object[type="' + config.mimetype + '"]');
+  windowReady = true;
 });
