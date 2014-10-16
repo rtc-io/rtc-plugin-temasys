@@ -53,15 +53,7 @@ exports.supported = function(platform) {
   document is prepared correctly.
 
 **/
-var init = exports.init = function(opts, callback) {
-  if (loader.plugin) {
-    return callback(null, loader.plugin);
-  }
-
-  loader.once('init', function() {
-    callback(null, loader.plugin);
-  });
-};
+var init = exports.init = loader.init;
 
 exports.attach = function(stream, opts) {
   var element = (opts || {}).el;

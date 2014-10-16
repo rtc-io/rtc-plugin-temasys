@@ -11,9 +11,9 @@ var pluginId = loader.pluginId = '__temasys_plugin_' + config.genId();
 // initialise the loader pageid
 var pageId = loader.pageId = config.genId();
 
-loader.init = function(callback) {
+loader.init = function(opts, callback) {
   if (initialized) {
-    return setTimeout(callback, 0);
+    return callback(null, loader.plugin);
   }
 
   if (! windowReady) {
@@ -25,7 +25,9 @@ loader.init = function(callback) {
   }
 
   loader.plugin = createPlugin();
-  loader.once('init', callback);
+  loader.once('init', function() {
+    callback(null, loader.plugin);
+  });
 };
 
 // patch in the onload handler into the window object
