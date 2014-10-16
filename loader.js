@@ -12,6 +12,11 @@ var pluginId = loader.pluginId = '__temasys_plugin_' + config.genId();
 var pageId = loader.pageId = config.genId();
 
 loader.init = function(opts, callback) {
+  if (typeof opts == 'function') {
+    callback = opts;
+    opts = {};
+  }
+
   if (initialized) {
     return callback(null, loader.plugin);
   }
