@@ -36,57 +36,9 @@ capture({ video: true, audio: true }, opts, function(err, stream) {
 
 ```
 
-## Example Usage (Conferencing)
-
-A slightly more complicated example demonstrating conferencing between
-machines is displayed below.
-
-```js
-var quickconnect = require('rtc-quickconnect');
-var media = require('rtc-media');
-var qsa = require('fdom/qsa');
-
-var plugins = [
-  require('rtc-plugin-temasys')
-];
-
-var opts = {
-  room: 'temasys-conftest',
-  plugins: plugins
-};
-
-function handleStreamCap(stream) {
-  quickconnect('http://rtc.io/switchboard/', opts)
-    // broadcast our captured media to other participants in the room
-    .addStream(stream)
-    // when a peer is connected (and active) pass it to us for use
-    .on('call:started', function(id, pc, data) {
-      console.log('call started: ', pc);
-
-      // render the remote streams
-      pc.getRemoteStreams().forEach(function(stream) {
-        var el = media({ stream: stream, plugins: plugins }).render(document.body);
-
-        // set the data-peer attribute of the element
-        el.dataset.peer = id;
-      });
-    })
-    // when a peer leaves, remove the media
-    .on('call:ended', function(id) {
-      // remove video elements associated with the remote peer
-      qsa('video[data-peer="' + id + '"]').forEach(function(el) {
-        el.parentNode.removeChild(el);
-      });
-    });
-}
-
-require('cog/logger').enable('*');
-
-media({ plugins: plugins })
-  .once('capture', handleStreamCap)
-  .render(document.body);
-
-```
+For a more detailed example (which includes video conferencing, please have
+a look at our [helloworld demo](https://github.com/rtc-io/demo-helloworld) which
+can be easily modified to use our Temasys plugin layer.
 
 ## Reference
 
