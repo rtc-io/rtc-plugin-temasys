@@ -18,12 +18,9 @@ var loader = require('./loader');
 
   <<< examples/capture.js
 
-  ## Example Usage (Conferencing)
-
-  A slightly more complicated example demonstrating conferencing between
-  machines is displayed below.
-
-  <<< examples/conference.js
+  For a more detailed example (which includes video conferencing, please have
+  a look at our [helloworld demo](https://github.com/rtc-io/demo-helloworld) which
+  can be easily modified to use our Temasys plugin layer.
 
   ## Reference
 
