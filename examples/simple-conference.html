@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>rtc.io simple conferencing</title>
+<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+<link rel="stylesheet" href="layout.css">
+</head>
+<body onload="RTC({ plugins: [ RTC.Temasys ] })" class="pure-g">
+    <div class="pure-u-1-5">
+        <div id="l-video"></div>
+    </div>
+    <div class="pure-u-4-5" id="r-video"></div>
+<script src="https://cdn.jsdelivr.net/rtc/latest/rtc.min.js"></script>
+<script src="../dist/rtc-temasys.js"></script>
+</body>
+</html>
