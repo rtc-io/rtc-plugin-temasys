@@ -32,6 +32,8 @@
   },
   "devDependencies": {
     "cog": "^1.0.0",
+    "freeice": "^2.2.0",
+    "rtc": "^3.3.0",
     "rtc-attach": "^2.0.1",
     "rtc-capture": "^1.0.0",
     "rtc-media": "^2.0.1",

@@ -143,9 +143,17 @@ exports.createIceCandidate = function(opts) {
 };
 
 exports.createConnection = function(config, constraints) {
+  var iceServers = ((config || {}).iceServers || []).map(function(iceServer) {
+    // The Temasys plugin creates a null `hasCredentials` property if it is not explicitly
+    // set, which then throws an exception as it cannot cast it's value. So set the value
+    // manually
+    iceServer.hasCredentials = !!iceServer.credential;
+    return iceServer;
+  });
+  
   return loader.plugin && loader.plugin.PeerConnection(
     loader.pageId,
-    (config || {}).iceServers || [],
+    iceServers,
     (constraints || {}).mandatory || null,
     (constraints || {}).optional || null
   );
